@@ -21,11 +21,11 @@ public class CategoryService {
     }
 
     public List<Category> listAll() {
-        return (List<Category>) repo.findAll();
+        return repo.findAll();
     }
 
-    public Category get(Integer id) {
-        return repo.findById(id).get();
+    public Category get(String name) {
+        return repo.findBycName(name);
     }
 
     public void delete(Integer id) {

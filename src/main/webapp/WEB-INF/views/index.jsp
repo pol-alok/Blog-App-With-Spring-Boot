@@ -100,13 +100,17 @@
             <a class="navbar-brand logo" href="#">Blog</a>
         </div>
         <ul class="nav navbar-nav">
-            <li class="active"><a href="../0">Home</a></li>
+            <li class="active"><a href="../posts">Home</a></li>
             <li class="dropdown"><a class="dropdown-toggle " data-toggle="dropdown" href="#">Sort By <span
                     class="caret"></span></a>
                 <ul class="dropdown-menu">
-                    <li><a href="/home/page/order-by-title/0">Title</a></li>
-                    <li><a href="/home/page/order-by-create/0">Created Date</a></li>
-                    <li><a href="/home/page/order-by-update/0">Updated Date</a></li>
+                    <% String url ="";%>
+                    <%if(request.getQueryString()!=null){
+                        url = request.getQueryString();
+                    }%>
+                    <li><a href="?sortBy=title">Title</a></li>
+                    <li><a href="?sortBy=createdAt">Created Date</a></li>
+                    <li><a href="?sortBy=updatedAt">Updated Date</a></li>
                 </ul>
             </li>
             <li class="dropdown"><a class="dropdown-toggle " data-toggle="dropdown" href="#">Category <span
@@ -114,12 +118,12 @@
 
                 <ul class="dropdown-menu">
                     <c:forEach items="${lstOfCategory}" var="cat">
-                        <li><a href="/posts/find-by-${cat.CName}/${cat.cid}/0">${cat.CName}</a></li>
+                        <li><a href="/posts?category=${cat.CName}">${cat.CName}</a></li>
                     </c:forEach>
                 </ul>
             </li>
         </ul>
-        <form class="navbar-form navbar-left" action="/post">
+        <form class="navbar-form navbar-left" action="/posts">
             <div class="input-group">
                 <input type="text" class="form-control" placeholder="Search" name="text">
                 <div class="input-group-btn">
@@ -143,6 +147,7 @@
                 <div class="contact-form">
                     <h1>Welcome to Blog</h1>
                     <div class="row">
+
                         <div class="text-center">
                             <a href="../../create-post" class="btn btn-primary"><i class="fa fa-paper-plane"></i><i
                                     class="fa fa-plus"></i> Create New Post </a>
@@ -188,18 +193,18 @@
                 <ul class="pagination justify-content-center">
                     <c:if test="${pageNo > 0}">
                         <li class="page-item">
-                            <a class="page-link" href="${pageNo - 1}" aria-label="Previous">
+                            <a class="page-link" href="posts?page=${pageNo - 1}" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                                 <span class="sr-only">Previous</span>
                             </a>
                         </li>
-                        <li class="page-item"><a class="page-link" href="${pageNo - 1}">${pageNo}</a></li>
+                        <li class="page-item"><a class="page-link" href="posts?page=${pageNo - 1}">${pageNo}</a></li>
                     </c:if>
-                    <li class="page-item"><a class="page-link" href="${pageNo}">${pageNo + 1}</a></li>
+                    <li class="page-item"><a class="page-link" href="posts?page=${pageNo}">${pageNo + 1}</a></li>
                     <c:if test="${pageNo < lastPage}">
-                        <li class="page-item"><a class="page-link" href="${pageNo + 1}">${pageNo + 2}</a></li>
+                        <li class="page-item"><a class="page-link" href="posts?page=${pageNo + 1}">${pageNo + 2}</a></li>
                         <li class="page-item">
-                            <a class="page-link" href="${pageNo + 1}" aria-label="Next">
+                            <a class="page-link" href="posts?page=${pageNo + 1}" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                                 <span class="sr-only">Next</span>
                             </a>

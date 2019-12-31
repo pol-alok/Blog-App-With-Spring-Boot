@@ -29,8 +29,8 @@ public class PostService {
         return repo.findAllByOrderByPidAsc(page).getContent();
     }
 
-    public List<Posts> listAll() {
-        return repo.findAll();
+    public List<Posts> listAll(Pageable page) {
+        return repo.findAll(page).getContent();
     }
 
     public Posts get(Integer id) {
@@ -53,8 +53,9 @@ public class PostService {
         return repo.findAllByOrderByCreatedAtDesc(page).getContent();
     }
 
-    public  List<Posts> getResultBySearch(String text) {
-        return repo.findAllByContentContainsOrTitleContains(text,text);
+    public  List<Posts> getResultBySearch(String text,Pageable pageable) {
+        return repo.findAllByContentContainsOrTitleContains(text,text,pageable);
     }
+
 
 }

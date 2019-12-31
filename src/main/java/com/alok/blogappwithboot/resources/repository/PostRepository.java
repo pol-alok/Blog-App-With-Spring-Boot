@@ -21,6 +21,8 @@ public interface PostRepository extends JpaRepository<Posts, Integer>, PagingAnd
 
     Page<Posts> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
-    List<Posts> findAllByContentContainsOrTitleContains(String content,String title);
+    List<Posts> findAllByContentContainsOrTitleContains(String content,String title,Pageable pageable);
+
+
 
 }
