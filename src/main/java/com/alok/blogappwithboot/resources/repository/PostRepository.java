@@ -23,6 +23,8 @@ public interface PostRepository extends JpaRepository<Posts, Integer>, PagingAnd
 
     List<Posts> findAllByContentContainsOrTitleContains(String content,String title,Pageable pageable);
 
+    Posts findByPid(Integer id);
+
 
 
 }

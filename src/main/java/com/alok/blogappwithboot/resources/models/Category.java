@@ -1,8 +1,10 @@
 package com.alok.blogappwithboot.resources.models;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -11,12 +13,13 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-
+@NoArgsConstructor
 @Getter
 @Setter
 @Entity
 public class Category {
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer cid;
@@ -33,6 +36,7 @@ public class Category {
     @Column(nullable = false)
     private Date updatedAt;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "categories",fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST,CascadeType.MERGE})
     private List<Posts> posts = new ArrayList<>();
 

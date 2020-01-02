@@ -34,7 +34,7 @@ public class PostService {
     }
 
     public Posts get(Integer id) {
-        return repo.findById(id).get();
+        return repo.findByPid(id);
     }
 
     public void delete(Integer id) {
