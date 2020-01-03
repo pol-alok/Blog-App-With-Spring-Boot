@@ -94,7 +94,7 @@ public class PostController {
         try {
             loggedInAuthor = authorService.findAuthorByName(name);
         }catch (Exception e) {
-            LOGGER.info("getting exception for getting author by name");
+            LOGGER.warn("getting exception for getting author by name");
             return "error";
         }
 
@@ -104,7 +104,7 @@ public class PostController {
         try {
             postService.save(post);
         }catch (Exception e) {
-            LOGGER.info("exception in saving post");
+            LOGGER.warn("exception in saving post");
             return "error";
         }
 
@@ -135,7 +135,7 @@ public class PostController {
         try {
             authorService.save(author);
         }catch (Exception e) {
-            LOGGER.info("exception in saving author");
+            LOGGER.warn("exception in saving author");
             return "error";
         }
 
@@ -154,7 +154,7 @@ public class PostController {
         try {
            currentPost = postService.get(id);
         }catch (Exception e) {
-            LOGGER.info("getting exception to find post by id");
+            LOGGER.warn("getting exception to find post by id");
             return "error";
         }
 
@@ -166,7 +166,7 @@ public class PostController {
             try {
                  post= postService.get(id);
             }catch (Exception e) {
-                LOGGER.info("getting exception to find post by id");
+                LOGGER.warn("getting exception to find post by id");
                 return "error";
             }
 
@@ -195,7 +195,7 @@ public class PostController {
         try {
             loggedInAuthor = authorService.findAuthorByName(name);
         } catch (Exception e) {
-            LOGGER.info("getting exception to get Author by name");
+            LOGGER.warn("getting exception to get Author by name");
             return "error";
         }
 
@@ -206,7 +206,7 @@ public class PostController {
         try {
             postService.save(post);
         }catch (Exception e) {
-            LOGGER.info("exception in saving post");
+            LOGGER.warn("exception in saving post");
             return "error";
         }
         model.addAttribute("update", "Your Post Updated successfully!");
@@ -223,7 +223,7 @@ public class PostController {
             currentPost= postService.get(id);
 
         } catch (Exception e) {
-            LOGGER.info("getting exception in getting post by id");
+            LOGGER.warn("getting exception in getting post by id");
             return "error";
 
         }
@@ -244,7 +244,7 @@ public class PostController {
         try {
             postService.delete(pid);
         }catch (Exception e) {
-            LOGGER.info(" exception in deleting post");
+            LOGGER.warn(" exception in deleting post");
             return "error";
         }
         LOGGER.info("deleted successfully");
@@ -269,7 +269,7 @@ public class PostController {
         try {
             categoryService.save(category);
         }catch (Exception e) {
-            LOGGER.info("exception in saving category");
+            LOGGER.warn("exception in saving category");
             return "error";
         }
 
@@ -294,7 +294,7 @@ public class PostController {
                 try {
                     cat= categoryService.get(category);
                 }catch (Exception e) {
-                    LOGGER.info("getting exception in getting object by given category");
+                    LOGGER.warn("getting exception in getting object by given category");
                     return "error";
                 }
 
@@ -304,7 +304,7 @@ public class PostController {
                 try {
                     listByCategory= cat.getPosts();
                 } catch (Exception e) {
-                    LOGGER.info("getting exception in getting object by given list of category");
+                    LOGGER.warn("getting exception in getting object by given list of category");
                     return "error";
                 }
 
@@ -343,7 +343,7 @@ public class PostController {
                 try {
                     cat= categoryService.get(category);
                 }catch (Exception e) {
-                    LOGGER.info("getting exception in getting object by given list of category");
+                    LOGGER.warn("getting exception in getting object by given list of category");
                     return "error";
                 }
 
@@ -358,7 +358,7 @@ public class PostController {
                 try {
                     postsList= postService.listAll(pageable);
                 }catch (Exception e) {
-                    LOGGER.info("getting exception in getting list of posts");
+                    LOGGER.warn("getting exception in getting list of posts");
                     return "error";
                 }
 
@@ -381,7 +381,7 @@ public class PostController {
                 try {
                     listOfPost = postService.listAll(pageable);
                 } catch (Exception e) {
-                    LOGGER.info("getting exception in getting list of posts");
+                    LOGGER.warn("getting exception in getting list of posts");
                     return "error";
                 }
                 model.addAttribute("lstOfPosts", listOfPost);
