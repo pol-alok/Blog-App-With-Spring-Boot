@@ -179,7 +179,6 @@
 
     <div class="container">
         <div class="row">
-            <h1>sgadfuhsbfgh</h1>
             <div class="col-md-12 m-auto">
                 <div class="contact-form">
                     <%List<Posts> posts = (List<Posts>) request.getAttribute("lstOfPosts");%>
