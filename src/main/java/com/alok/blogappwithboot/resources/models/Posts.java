@@ -30,8 +30,6 @@ public class Posts {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private Date published;
 
-    private Integer authorId;
-
     @UpdateTimestamp
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @Column(nullable = false)

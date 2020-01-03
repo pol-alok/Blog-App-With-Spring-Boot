@@ -1,3 +1,4 @@
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
   Created by IntelliJ IDEA.
   User: user
@@ -5,10 +6,7 @@
   Time: 10:07
   To change this template use File | Settings | File Templates.
 --%>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="input" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib prefix="security" uri="http://www.springframework.org/security/tags" %>
+
 
 
 <html lang="en">
@@ -89,36 +87,32 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2 m-auto">
             <div class="contact-form">
-                <security:authorize access="isAuthenticated()">
-                    <h1 class="text-success"> Welcome Mr. <security:authentication property="name"/> !</h1>
-                </security:authorize>
-
-<%--                    <security:authorize access="hasRole('ADMIN')"> ADMIN LEVEL PRIVILEGE  </h3>--%>
-<%--                        <p>With Great Power Comes great Responsibility</p> </security:authorize>--%>
-                <h1>Create New Post</h1>
+                <h1>Log In</h1>
+                ${SPRING_SECURITY_LAST_EXCEPTION.message}
                 <%--@elvariable id="post" type="com.alok.blogappwithboot.resources.models.Posts"--%>
-                <form:form action="create-post" method="post" modelAttribute="post">
-                <div class="row">
-                    <div class="form-group">
-                        <label for="PostTitle">Post Title</label>
-                        <form:input type="text" class="form-control" id="PostTitle" path="title"/>
-                        <!--required remaining-->
-                    </div>
-                    <div class="form-group">
-                        <label for="inputMessage">Content</label>
-                        <form:textarea class="form-control" id="inputMessage" rows="10" path="content"/>
-                        <!--required remaining-->
-                    </div>
+                <form action="login" method="post" >
+                    <div class="row">
+                        <div class="form-group">
+                            <label for="AuthorName">Author Name</label>
+                            <input type="text" class="form-control" id="AuthorName" name="username" />
+                            <!--required remaining-->
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" id="password" name="password"/>
+                            <!--required remaining-->
+                        </div>
 
-                    <div class="container">
-                      <label><form:checkboxes items="${mpOfCategory}" path="categories" itemValue="cid" cssClass="checkbox"/></label>
+                        <div class="container">
+                            <label for="checkbox">Remember me</label>
+                            <input type="checkbox" id="checkbox">
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary"><i class="fa fa-paper-plane"></i> Log In
+                            </button>
+                        </div>
                     </div>
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary"><i class="fa fa-paper-plane"></i> Publish
-                        </button>
-                    </div>
-                </div>
-                </form:form>
+                </form>
             </div>
         </div>
     </div>

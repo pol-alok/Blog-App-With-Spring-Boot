@@ -1,7 +1,12 @@
-<%@ page contentType="text/html; charset=UTF-8" language="java" isELIgnored="false" %>
+<%@ page import="org.springframework.security.core.context.SecurityContextHolder" %>
+<%@ page import="org.springframework.security.core.userdetails.UserDetails" %>
+<%@ page import="com.alok.blogappwithboot.resources.models.Posts" %>
+<%@ page import="java.util.List" %>
+<%@ page import="com.alok.blogappwithboot.resources.models.Category" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib uri='http://java.sun.com/jsp/jstl/core' prefix='c' %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
+<%@ taglib prefix="security" uri="http://www.springframework.org/security/tags" %>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -90,6 +95,15 @@
             color: #fff;
         }
     </style>
+    <script>
+        function setUrl(param, paramValue)
+        {
+            const params = new URLSearchParams(location.search);
+            params.set(param, paramValue);
+            window.history.replaceState({}, "", location.pathname + '?' + params);
+            location.reload();
+        }
+    </script>
 
 </head>
 
@@ -97,20 +111,15 @@
 <nav class="navbar navbar-inverse ">
     <div class="container-fluid ">
         <div class="navbar-header">
-            <a class="navbar-brand logo" href="#">Blog</a>
+            <a class="navbar-brand logo" href="../posts">Blog</a>
         </div>
         <ul class="nav navbar-nav">
-            <li class="active"><a href="../posts">Home</a></li>
             <li class="dropdown"><a class="dropdown-toggle " data-toggle="dropdown" href="#">Sort By <span
                     class="caret"></span></a>
                 <ul class="dropdown-menu">
-                    <% String url ="";%>
-                    <%if(request.getQueryString()!=null){
-                        url = request.getQueryString();
-                    }%>
-                    <li><a href="?sortBy=title">Title</a></li>
-                    <li><a href="?sortBy=createdAt">Created Date</a></li>
-                    <li><a href="?sortBy=updatedAt">Updated Date</a></li>
+                    <li><a onclick="setUrl('sortBy','title')">Title</a></li>
+                    <li><a onclick="setUrl('sortBy','createdAt')">Created Date</a></li>
+                    <li><a onclick="setUrl('sortBy','updatedAt')">Updated Date</a></li>
                 </ul>
             </li>
             <li class="dropdown"><a class="dropdown-toggle " data-toggle="dropdown" href="#">Category <span
@@ -118,25 +127,35 @@
 
                 <ul class="dropdown-menu">
                     <c:forEach items="${lstOfCategory}" var="cat">
-                        <li><a href="/posts?category=${cat.CName}">${cat.CName}</a></li>
+<%--                        href="&category=${cat.CName}"--%>
+                        <li><a onclick="setUrl('category','${cat.CName}')">${cat.CName}</a></li>
                     </c:forEach>
                 </ul>
             </li>
         </ul>
-        <form class="navbar-form navbar-left" action="/posts">
+        <div class="navbar-form navbar-left">
             <div class="input-group">
-                <input type="text" class="form-control" placeholder="Search" name="text">
+                <input type="text" class="form-control" placeholder="Search" id="SearchBox"  name="text">
                 <div class="input-group-btn">
-                    <button class="btn btn-default" type="submit">
+                    <button class="btn btn-default" onclick="setUrl('text',document.getElementById('SearchBox').value)">
                         <i class="glyphicon glyphicon-search"></i>
                     </button>
                 </div>
             </div>
-        </form>
+        </div>
+
         <ul class="nav navbar-nav navbar-right">
-            <li><a href="create-category"><span class="glyphicon glyphicon-user"></span>Create New Category</a></li>
-            <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-            <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+
+            <security:authorize access="isAuthenticated()">
+                <li><a href="/logout"><span class="glyphicon glyphicon-log-in"></span> Log Out</a></li>
+            </security:authorize>
+            <security:authorize access="hasRole('ADMIN')">
+                <li><a href="create-category"><span class="glyphicon glyphicon-user"></span>Create New Category</a></li>
+            </security:authorize>
+            <li><a href="signUp"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+            <security:authorize access="!isAuthenticated()">
+                <li><a href="login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+            </security:authorize>
         </ul>
     </div>
 </nav>
@@ -160,31 +179,63 @@
 
     <div class="container">
         <div class="row">
+            <h1>sgadfuhsbfgh</h1>
             <div class="col-md-12 m-auto">
                 <div class="contact-form">
-                    <c:forEach var="pst" items="${lstOfPosts}">
-                        <div class="row card">
-                            <div class="col-md-8 m-auto">
+                    <%List<Posts> posts = (List<Posts>) request.getAttribute("lstOfPosts");%>
+                    <% for (Posts post : posts) { %>
+                    <div class="row card">
+                        <div class="col-md-8 m-auto">
+                            <%List<Category> currentPostCategories = post.getCategories();%>
+                            <%for (Category cat : currentPostCategories) {%>
+                            <span style="color: red">#<%=cat.getCName()%></span>
 
-                                <h3>${pst.title}</h3>
-                                <p>${pst.content}</p>
-                                    <%--                            <c:set var = "now" value = "<%=%>" />--%>
-                                    <%--                            <p>Formatted Date (6): <fmt:formatDate type = "both" dateStyle = "long" timeStyle = "long" value = "${pst.createdAt}" /></p>--%>
-                                <span><h4>Created At : </h4>${pst.createdAt}</span> &nbsp; &nbsp; &nbsp; &nbsp;
-                                <span><h4>Updated At : </h4>${pst.updatedAt}</span>
-                            </div>
-                            <div class="col-md-3">
-                                <a href="../../update-post/${pst.pid}" class="btn btn-primary"><i
+                            <%}%>
+                            <h3><%=post.getTitle()%>
+                            </h3>
+                            <p><%=post.getContent()%>
+                            </p>
+
+
+                            <span>Created At :<%=post.getCreatedAt()%></span> &nbsp; &nbsp; &nbsp; &nbsp;
+                            <span>Last Updated At : <%=post.getUpdatedAt()%></span><br>
+                            <span>Author name :&nbsp; &nbsp; <span
+                                    style="color: green"><%=post.getAuthor().getName()%></span></span>
+                        </div>
+                        <div class="col-md-3">
+                            <security:authorize access="isAuthenticated()">
+
+
+                                <%
+                                    String authorName = post.getAuthor().getName();
+                                    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                                    String currentAuthor = "";
+                                    String authorities = "";
+                                    if (principal instanceof UserDetails) {
+                                        currentAuthor = ((UserDetails) principal).getUsername();
+                                        authorities = String.valueOf(((UserDetails) principal).getAuthorities());
+                                    } else {
+                                        currentAuthor = principal.toString();
+                                    }
+                                    if (authorName.equals(currentAuthor) || authorities.equals("[ROLE_ADMIN]")) {
+                                %>
+                                <%--                                <a href="/edit?id=<%=post.getId()%>">Edit</a>--%>
+                                <a href="../../update-post/<%=post.getPid()%>" class="btn btn-primary"><i
                                         class="fa fa-edit"></i>
                                     Update Post </a>
-                                <a href="../../delete-post/${pst.pid}" class="btn btn-primary"><i
+
+                                <a href="../../delete-post/<%=post.getPid()%>" class="btn btn-primary"><i
                                         class="fa fa-trash"></i>
                                     Delete Post </a>
-                            </div>
+                                <%
+                                    }
+                                %>
+                            </security:authorize>
                         </div>
-                        <br>
-                        <br>
-                    </c:forEach>
+                    </div>
+                    <br>
+                    <br>
+                    <%}%>
                 </div>
             </div>
         </div>
@@ -202,7 +253,8 @@
                     </c:if>
                     <li class="page-item"><a class="page-link" href="posts?page=${pageNo}">${pageNo + 1}</a></li>
                     <c:if test="${pageNo < lastPage}">
-                        <li class="page-item"><a class="page-link" href="posts?page=${pageNo + 1}">${pageNo + 2}</a></li>
+                        <li class="page-item"><a class="page-link" href="posts?page=${pageNo + 1}">${pageNo + 2}</a>
+                        </li>
                         <li class="page-item">
                             <a class="page-link" href="posts?page=${pageNo + 1}" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>

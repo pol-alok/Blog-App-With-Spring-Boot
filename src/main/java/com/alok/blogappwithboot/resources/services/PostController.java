@@ -1,16 +1,30 @@
 package com.alok.blogappwithboot.resources.services;
 
+import com.alok.blogappwithboot.resources.dao.AuthorService;
 import com.alok.blogappwithboot.resources.dao.CategoryService;
 import com.alok.blogappwithboot.resources.dao.PostService;
+import com.alok.blogappwithboot.resources.models.Author;
 import com.alok.blogappwithboot.resources.models.Category;
 import com.alok.blogappwithboot.resources.models.Posts;
+import com.alok.blogappwithboot.validator.AuthorNameValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.boot.SpringApplication;
 import org.springframework.data.domain.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,11 +33,21 @@ import java.util.Map;
 @Controller
 public class PostController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PostController.class);
     @Autowired
     private PostService postService;
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private AuthorService authorService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuthorNameValidator authorNameValidator;
 
 //    @GetMapping("/home/page/{pageNo}")
 //    public String getHomePage(Model model, @PathVariable String pageNo) {
@@ -39,56 +63,178 @@ public class PostController {
 //        return "index";
 //    }
 
+    @InitBinder
+    public void initBinder(WebDataBinder dataBinder) {
+        StringTrimmerEditor stringTrimmerEditor = new StringTrimmerEditor(true);
+        dataBinder.registerCustomEditor(String.class, stringTrimmerEditor);
+    }
+
+    @GetMapping("/")
+    public String redirectToHome() {
+        return "redirect:posts";
+    }
+
     @GetMapping("/create-post")
     public String newPostForm(Model model) {
+        LOGGER.info("in new Post creation");
         Posts post = new Posts();
         Map<Category, String> mpOfCategory = new HashMap<>();
+        LOGGER.info("creating a category list");
         categoryService.listAll().forEach((category) -> mpOfCategory.put(category, category.getCName()));
+
         model.addAttribute("mpOfCategory", mpOfCategory);
         model.addAttribute("post", post);
+        LOGGER.info("Done with create Post");
         return "createPost";
+    }
+
+    @RequestMapping("/login")
+    public String getLoginPage(Principal principal) {
+        if (principal != null) {
+            return "redirect:/posts";
+        } else {
+            return "login";
+        }
     }
 
     @PostMapping("/create-post")
     public String createPost(@ModelAttribute("post") Posts post, Model model) {
 
-        post.getCategories().forEach((i) -> System.out.println(i.getCName()));
+        LOGGER.info("authentication in post request");
+//         post.getCategories().forEach((i) -> System.out.println(i.getCName()));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String name = authentication.getName();
+        LOGGER.info("finding author by name");
+        Author loggedInAuthor;
+        try {
+            loggedInAuthor = authorService.findAuthorByName(name);
+        }catch (Exception e) {
+            LOGGER.info("getting exception for getting author by name");
+            return "error";
+        }
+
+
+        post.setAuthor(loggedInAuthor);
+        LOGGER.info("saving post");
         postService.save(post);
 
         model.addAttribute("create", "Your Post created successfully!");
         return "postConformation";
     }
 
+    @GetMapping("/signUp")
+    public String newAuthorForm(Model model) {
+        Author author = new Author();
+        model.addAttribute("author", author);
+        return "signUpForm";
+    }
+
+    @PostMapping("/signUp")
+    public String saveAuthor(@ModelAttribute("author") Author author, Model model, BindingResult bindingResult) {
+
+        authorNameValidator.validate(author, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            return "signUpForm";
+        }
+        String encryptedPass = passwordEncoder.encode(author.getPassword());
+        author.setPassword(encryptedPass);
+        author.setRole("USER");
+        LOGGER.info("saving author");
+        authorService.save(author);
+        model.addAttribute("signUp", "Sign Up successfully!");
+        return "postConformation";
+    }
+
 
     @GetMapping("/update-post/{id}")
-    public String editPostForm(@PathVariable("id") Integer id, Model model) {
-        Posts post = postService.get(id);
+    public String editPostForm(@PathVariable("id") Integer id, Model model, Principal principal, SecurityContextHolderAwareRequestWrapper requestWrapper) {
 
-        Map<Category, String> mpOfCategory = new HashMap<>();
-        categoryService.listAll().forEach((category) -> mpOfCategory.put(category, category.getCName()));
-        model.addAttribute("mpOfCategory", mpOfCategory);
-        model.addAttribute("singlePost", post);
-        return "updatePost";
+        LOGGER.info("getting current user form principle");
+        String name = principal.getName();
+        LOGGER.info("getting post by id");
+        Posts currentPost;
+        try {
+           currentPost = postService.get(id);
+        }catch (Exception e) {
+            LOGGER.info("getting exception to find post by id");
+            return "error";
+        }
+
+
+        String postAuthorName = currentPost.getAuthor().getName();
+
+        if (postAuthorName.equals(name) || requestWrapper.isUserInRole("ROLE_ADMIN")) {
+            Posts post = postService.get(id);
+
+            Map<Category, String> mpOfCategory = new HashMap<>();
+            categoryService.listAll().forEach((category) -> mpOfCategory.put(category, category.getCName()));
+
+            model.addAttribute("mpOfCategory", mpOfCategory);
+            model.addAttribute("singlePost", post);
+            return "updatePost";
+
+        } else {
+            return "redirect:/posts";
+        }
+
+
     }
 
     @PostMapping("/update-post")
     public String saveEditedForm(@ModelAttribute("singlePost") Posts post, Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String name = authentication.getName();
+
+        LOGGER.info("getting Author by name");
+        Author loggedInAuthor;
+        try {
+            loggedInAuthor = authorService.findAuthorByName(name);
+        } catch (Exception e) {
+            LOGGER.info("getting exception to get Author by name");
+            return "error";
+        }
+
+
+        post.setAuthor(loggedInAuthor);
+
+        LOGGER.info("saving post");
         postService.save(post);
         model.addAttribute("update", "Your Post Updated successfully!");
         return "postConformation";
     }
 
     @GetMapping("/delete-post/{id}")
-    public String deletePostConformation(@PathVariable("id") Integer id) {
-        return "deletePostConformation";
+    public String deletePostConformation(@PathVariable("id") Integer id, Principal principal, SecurityContextHolderAwareRequestWrapper requestWrapper) {
+
+        String name = principal.getName();
+
+        Posts currentPost;
+        try {
+            currentPost= postService.get(id);
+
+        } catch (Exception e) {
+            LOGGER.info("getting exception in getting post by id");
+            return "error";
+
+        }
+
+        String postAuthorName = currentPost.getAuthor().getName();
+
+        if (postAuthorName.equals(name) || requestWrapper.isUserInRole("ROLE_ADMIN")) {
+            return "deletePostConformation";
+        } else {
+            return "redirect:/posts";
+        }
     }
 
 
     @PostMapping("/delete-post/{id}")
     public String deleteCustomerForm(Model model, @PathVariable("id") Integer pid) {
+        LOGGER.info("deleting post");
         postService.delete(pid);
 //        return "redirect:/";
-
+        LOGGER.info("deleted successfully");
         model.addAttribute("delete", "Your Post Deleted successfully!");
         return "postConformation";
     }
@@ -105,8 +251,9 @@ public class PostController {
 
 
         System.out.println(category.getCName());
+        LOGGER.info("saving category");
         categoryService.save(category);
-
+        LOGGER.info("saved successfully");
         return "postConformation";
     }
 //    @GetMapping("/home/page/order-by-update/{pageNo}")
@@ -150,6 +297,7 @@ public class PostController {
 //        return "index";
 //    }
 
+
     @GetMapping("/posts")
     public String searchingSortingFiltering(@RequestParam(required = false, name = "text") String text,
                                             @RequestParam(defaultValue = "pid", required = false, name = "sortBy") String sortBy,
@@ -163,10 +311,25 @@ public class PostController {
             if (category != null) {
 
 //                getting the category object by given category;
-                Category cat = categoryService.get(category);
+                LOGGER.info("getting the category object by given category");
+                Category cat;
+                try {
+                    cat= categoryService.get(category);
+                }catch (Exception e) {
+                    LOGGER.info("getting exception in getting object by given category");
+                    return "error";
+                }
+
 
 //                getting the list related to that category
-                List<Posts> listByCategory = cat.getPosts();
+                List<Posts> listByCategory;
+                try {
+                    listByCategory= cat.getPosts();
+                } catch (Exception e) {
+                    LOGGER.info("getting exception in getting object by given list of category");
+                    return "error";
+                }
+
 
 //                creating the pageable object
                 Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sortBy).ascending());
@@ -198,7 +361,13 @@ public class PostController {
         } else {
             if (category != null) {
 //                getting category object from name
-                Category cat = categoryService.get(category);
+                Category cat;
+                try {
+                    cat= categoryService.get(category);
+                }catch (Exception e) {
+                    LOGGER.info("getting exception in getting object by given list of category");
+                    return "error";
+                }
 
 //                getting the list of posts from category object
                 List<Posts> listByCategory = cat.getPosts();
@@ -235,3 +404,5 @@ public class PostController {
         return "index";
     }
 }
+
+

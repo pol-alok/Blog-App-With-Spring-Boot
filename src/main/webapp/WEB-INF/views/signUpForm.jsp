@@ -7,8 +7,7 @@
 --%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="input" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib prefix="security" uri="http://www.springframework.org/security/tags" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 
 <html lang="en">
@@ -89,35 +88,40 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2 m-auto">
             <div class="contact-form">
-                <security:authorize access="isAuthenticated()">
-                    <h1 class="text-success"> Welcome Mr. <security:authentication property="name"/> !</h1>
-                </security:authorize>
+                <h1>Sign Up</h1>
 
-<%--                    <security:authorize access="hasRole('ADMIN')"> ADMIN LEVEL PRIVILEGE  </h3>--%>
-<%--                        <p>With Great Power Comes great Responsibility</p> </security:authorize>--%>
-                <h1>Create New Post</h1>
-                <%--@elvariable id="post" type="com.alok.blogappwithboot.resources.models.Posts"--%>
-                <form:form action="create-post" method="post" modelAttribute="post">
-                <div class="row">
-                    <div class="form-group">
-                        <label for="PostTitle">Post Title</label>
-                        <form:input type="text" class="form-control" id="PostTitle" path="title"/>
-                        <!--required remaining-->
+                <%--@elvariable id="author" type="com.alok.blogappwithboot.resources.models.Author"--%>
+                <form:form action="signUp" method="post" modelAttribute="author">
+                    <div class="row">
+                        <div class="form-group">
+                            <label for="name">Author Name</label>
+                            <spring:bind path="name">
+                            <form:input type="text" class="form-control" id="name" path="name"/>
+                            <form:errors path="name"/>
+                            </spring:bind>
+                            <!--required remaining-->
+                        </div>
+                        <div class="form-group">
+                            <label for="mail">Email</label>
+                            <spring:bind path="email">
+                            <form:input type="email" class="form-control" id="mail" path="email"/>
+                            <form:errors path="email"/>
+                            </spring:bind>
+                            <!--required remaining-->
+                        </div>
+                        <div class="form-group">
+                            <label for="mail">Password</label>
+                            <spring:bind path="password">
+                            <form:input type="password" class="form-control" id="mail" path="password"/>
+                                <form:errors path="password"/>
+                            </spring:bind>
+                            <!--required remaining-->
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary"><i class="fa fa-paper-plane"></i> Sign Up
+                            </button>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="inputMessage">Content</label>
-                        <form:textarea class="form-control" id="inputMessage" rows="10" path="content"/>
-                        <!--required remaining-->
-                    </div>
-
-                    <div class="container">
-                      <label><form:checkboxes items="${mpOfCategory}" path="categories" itemValue="cid" cssClass="checkbox"/></label>
-                    </div>
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary"><i class="fa fa-paper-plane"></i> Publish
-                        </button>
-                    </div>
-                </div>
                 </form:form>
             </div>
         </div>

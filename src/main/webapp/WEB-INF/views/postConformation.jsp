@@ -68,13 +68,13 @@
         <div class="col-md-8 col-md-offset-2 m-auto">
             <div class="contact-form">
 
-                <h1>${(delete!=null) ? delete : (create!=null) ? create: (update!=null) ? update : "ok"}</h1>
+                <h1>${(delete!=null) ? delete : (create!=null) ? create: (update!=null) ? update :(signUp!=null) ? signUp : "ok"}</h1>
                 <div class="row">
                     <div class="text-center">
-                        <a href="${(delete!=null) ? "../home/page/0" : "./home/page/0"}" class="btn btn-primary"><i class="fa fa-eye"></i> View Posts </a>
+                        <a href="${(signUp!=null) ? "../login" : (delete!=null) ? "../posts" :"/posts"}" class="btn btn-primary"><i class="fa fa-eye"></i> ${(signUp!=null) ? "Login" : "Show Posts"} </a>
                     </div>
                     <div class="text-center">
-                        <a href="${(delete!=null) ? "../home/page/0" : "./home/page/0"}" class="btn btn-primary"><i class="fa fa-home"></i> Home </a>
+                        <a href="${(signUp!=null) ? "../posts" : (delete!=null) ? "../posts" :"/posts"}" class="btn btn-primary"><i class="fa fa-home"></i> Home </a>
                     </div>
                 </div>
             </div>
