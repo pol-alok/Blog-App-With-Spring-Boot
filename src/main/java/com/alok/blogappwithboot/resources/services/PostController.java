@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
-import org.springframework.boot.SpringApplication;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -48,20 +47,6 @@ public class PostController {
 
     @Autowired
     private AuthorNameValidator authorNameValidator;
-
-//    @GetMapping("/home/page/{pageNo}")
-//    public String getHomePage(Model model, @PathVariable String pageNo) {
-//        Pageable pageable = PageRequest.of(Integer.parseInt(pageNo),5);
-//        model.addAttribute("lstOfPosts",postService.getListOrderById(pageable));
-//        model.addAttribute("lastPage",(postService.listAll().size())/5);
-//        model.addAttribute("pageNo",pageNo);
-//
-//
-//        model.addAttribute("lstOfCategory",categoryService.listAll());
-//
-//        System.out.println();
-//        return "index";
-//    }
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -116,7 +101,13 @@ public class PostController {
 
         post.setAuthor(loggedInAuthor);
         LOGGER.info("saving post");
-        postService.save(post);
+        try {
+            postService.save(post);
+        }catch (Exception e) {
+            LOGGER.info("exception in saving post");
+            return "error";
+        }
+
 
         model.addAttribute("create", "Your Post created successfully!");
         return "postConformation";
@@ -141,7 +132,13 @@ public class PostController {
         author.setPassword(encryptedPass);
         author.setRole("USER");
         LOGGER.info("saving author");
-        authorService.save(author);
+        try {
+            authorService.save(author);
+        }catch (Exception e) {
+            LOGGER.info("exception in saving author");
+            return "error";
+        }
+
         model.addAttribute("signUp", "Sign Up successfully!");
         return "postConformation";
     }
@@ -165,7 +162,14 @@ public class PostController {
         String postAuthorName = currentPost.getAuthor().getName();
 
         if (postAuthorName.equals(name) || requestWrapper.isUserInRole("ROLE_ADMIN")) {
-            Posts post = postService.get(id);
+            Posts post;
+            try {
+                 post= postService.get(id);
+            }catch (Exception e) {
+                LOGGER.info("getting exception to find post by id");
+                return "error";
+            }
+
 
             Map<Category, String> mpOfCategory = new HashMap<>();
             categoryService.listAll().forEach((category) -> mpOfCategory.put(category, category.getCName()));
@@ -199,7 +203,12 @@ public class PostController {
         post.setAuthor(loggedInAuthor);
 
         LOGGER.info("saving post");
-        postService.save(post);
+        try {
+            postService.save(post);
+        }catch (Exception e) {
+            LOGGER.info("exception in saving post");
+            return "error";
+        }
         model.addAttribute("update", "Your Post Updated successfully!");
         return "postConformation";
     }
@@ -232,8 +241,12 @@ public class PostController {
     @PostMapping("/delete-post/{id}")
     public String deleteCustomerForm(Model model, @PathVariable("id") Integer pid) {
         LOGGER.info("deleting post");
-        postService.delete(pid);
-//        return "redirect:/";
+        try {
+            postService.delete(pid);
+        }catch (Exception e) {
+            LOGGER.info(" exception in deleting post");
+            return "error";
+        }
         LOGGER.info("deleted successfully");
         model.addAttribute("delete", "Your Post Deleted successfully!");
         return "postConformation";
@@ -252,52 +265,17 @@ public class PostController {
 
         System.out.println(category.getCName());
         LOGGER.info("saving category");
-        categoryService.save(category);
+
+        try {
+            categoryService.save(category);
+        }catch (Exception e) {
+            LOGGER.info("exception in saving category");
+            return "error";
+        }
+
         LOGGER.info("saved successfully");
         return "postConformation";
     }
-//    @GetMapping("/home/page/order-by-update/{pageNo}")
-//    public String sortByUpdatedDate(Model model, @PathVariable String pageNo) {
-//        Pageable pageable = PageRequest.of(Integer.parseInt(pageNo),5);
-//        model.addAttribute("lstOfPosts",postService.getPostOrderByUpdate(pageable));
-//        model.addAttribute("lastPage",(postService.listAll().size())/5);
-//        model.addAttribute("pageNo",pageNo);
-//        return "index";
-//    }
-
-//    @GetMapping("/home/page/order-by-title/{pageNo}")
-//    public String sortByTitle(Model model, @PathVariable String pageNo) {
-//        Pageable pageable = PageRequest.of(Integer.parseInt(pageNo),5);
-//        model.addAttribute("lstOfPosts",postService.getOrderByTitle(pageable));
-//        model.addAttribute("lastPage",(postService.listAll().size())/5);
-//        model.addAttribute("pageNo",pageNo);
-//        return "index";
-//    }
-//
-//    @GetMapping("/home/page/order-by-create/{pageNo}")
-//    public String sortByCreatedDate(Model model, @PathVariable String pageNo) {
-//        Pageable pageable = PageRequest.of(Integer.parseInt(pageNo),5);
-//        model.addAttribute("lstOfPosts",postService.getPostOrderByCreate(pageable));
-//        model.addAttribute("lastPage",(postService.listAll().size())/5);
-//        model.addAttribute("pageNo",pageNo);
-//        return "index";
-//    }
-
-//    @GetMapping("/posts/find-by-{categoryName}/{cid}/{pageNo}")
-//    public String findByCategory(Model model, @PathVariable String categoryName, @PathVariable String cid, @PathVariable String pageNo) {
-//        Category category = categoryService.get(Integer.parseInt(cid));
-//        model.addAttribute("lstOfPosts",category.getPosts());
-//        return "index";
-//    }
-
-//    @GetMapping("/search")
-//    public String searchPost(@RequestParam("text") String text,Model model) {
-//        model.addAttribute("lstOfPosts",postService.getResultBySearch(text));
-//
-//        return "index";
-//    }
-
-
     @GetMapping("/posts")
     public String searchingSortingFiltering(@RequestParam(required = false, name = "text") String text,
                                             @RequestParam(defaultValue = "pid", required = false, name = "sortBy") String sortBy,
@@ -376,7 +354,13 @@ public class PostController {
                 Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sortBy).ascending());
 
 //                getting the list of posts from from post which is pageable
-                List<Posts> postsList = postService.listAll(pageable);
+                List<Posts> postsList;
+                try {
+                    postsList= postService.listAll(pageable);
+                }catch (Exception e) {
+                    LOGGER.info("getting exception in getting list of posts");
+                    return "error";
+                }
 
                 List<Posts> finalList = new ArrayList<>();
 
@@ -393,7 +377,13 @@ public class PostController {
 
             } else {
                 Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sortBy).ascending());
-                List<Posts> listOfPost = postService.listAll(pageable);
+                List<Posts> listOfPost;
+                try {
+                    listOfPost = postService.listAll(pageable);
+                } catch (Exception e) {
+                    LOGGER.info("getting exception in getting list of posts");
+                    return "error";
+                }
                 model.addAttribute("lstOfPosts", listOfPost);
                 model.addAttribute("lastPage", (listOfPost.size()) / pageSize);
                 model.addAttribute("pageNo", page);
