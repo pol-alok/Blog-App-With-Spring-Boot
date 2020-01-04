@@ -23,6 +23,7 @@ public class Posts {
 
     private String title;
 
+    @Column(length=2000)
     private String content;
 
     @CreationTimestamp
