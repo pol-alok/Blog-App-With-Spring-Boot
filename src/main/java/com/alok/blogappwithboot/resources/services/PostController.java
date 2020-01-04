@@ -130,7 +130,7 @@ public class PostController {
         }
         String encryptedPass = passwordEncoder.encode(author.getPassword());
         author.setPassword(encryptedPass);
-        author.setRole("ADMIN");
+        author.setRole("USER");
         LOGGER.info("saving author");
         try {
             authorService.save(author);
