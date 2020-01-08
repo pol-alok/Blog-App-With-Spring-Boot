@@ -94,10 +94,143 @@
         .nav.navbar-nav.navbar-right li a:hover {
             color: #fff;
         }
+
+        /*    ------------------------------------*/
+        @import url(https://fonts.googleapis.com/css?family=Roboto:400,100,900);
+
+        html,
+        body {
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            height: 100%;
+            width: 100%;
+            background: #FFF;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 400;
+        }
+
+        .wrapper {
+            display: table;
+            height: 100%;
+            width: 100%;
+        }
+
+        .container-fostrap {
+            display: table-cell;
+            padding: 1em;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .fostrap-logo {
+            width: 100px;
+            margin-bottom: 15px
+        }
+
+        h1.heading {
+            color: #fff;
+            font-size: 1.15em;
+            font-weight: 900;
+            margin: 0 0 0.5em;
+            color: #505050;
+        }
+
+        @media (min-width: 450px) {
+            h1.heading {
+                font-size: 3.55em;
+            }
+        }
+
+        @media (min-width: 760px) {
+            h1.heading {
+                font-size: 3.05em;
+            }
+        }
+
+        @media (min-width: 900px) {
+            h1.heading {
+                font-size: 3.25em;
+                margin: 0 0 0.3em;
+            }
+        }
+
+        .card {
+            display: block;
+            margin-bottom: 20px;
+            line-height: 1.42857143;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+            transition: box-shadow .25s;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+
+        .img-card {
+            width: 100%;
+            height: 200px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            display: block;
+            overflow: hidden;
+        }
+
+        .img-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: all .25s ease;
+        }
+
+        .card-content {
+            padding: 15px;
+            text-align: left;
+        }
+
+        .card-title {
+            margin-top: 0px;
+            font-weight: 700;
+            font-size: 1.65em;
+        }
+
+        .card-title a {
+            color: #000;
+            text-decoration: none !important;
+        }
+
+        .card-read-more {
+            border-top: 1px solid #D4D4D4;
+        }
+
+        .card-read-more a {
+            text-decoration: none !important;
+            padding: 10px;
+            font-weight: 600;
+            text-transform: uppercase
+        }
+
+        .chip {
+            display: inline-block;
+            padding: 0 25px;
+            height: 50px;
+            font-size: 16px;
+            line-height: 50px;
+            border-radius: 25px;
+            background-color: #f1f1f1;
+        }
+
+        .chip img {
+            float: left;
+            margin: 0 10px 0 -25px;
+            height: 50px;
+            width: 50px;
+            border-radius: 50%;
+        }
     </style>
     <script>
-        function setUrl(param, paramValue)
-        {
+        function setUrl(param, paramValue) {
             const params = new URLSearchParams(location.search);
             params.set(param, paramValue);
             window.history.replaceState({}, "", location.pathname + '?' + params);
@@ -127,7 +260,6 @@
 
                 <ul class="dropdown-menu">
                     <c:forEach items="${lstOfCategory}" var="cat">
-<%--                        href="&category=${cat.CName}"--%>
                         <li><a onclick="setUrl('category','${cat.CName}')">${cat.CName}</a></li>
                     </c:forEach>
                 </ul>
@@ -135,7 +267,7 @@
         </ul>
         <div class="navbar-form navbar-left">
             <div class="input-group">
-                <input type="text" class="form-control" placeholder="Search" id="SearchBox"  name="text">
+                <input type="text" class="form-control" placeholder="Search" id="SearchBox" name="text">
                 <div class="input-group-btn">
                     <button class="btn btn-default" onclick="setUrl('text',document.getElementById('SearchBox').value)">
                         <i class="glyphicon glyphicon-search"></i>
@@ -152,8 +284,8 @@
             <security:authorize access="hasRole('ADMIN')">
                 <li><a href="create-category"><span class="glyphicon glyphicon-user"></span>Create New Category</a></li>
             </security:authorize>
-            <li><a href="signUp"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
             <security:authorize access="!isAuthenticated()">
+                <li><a href="signUp"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
                 <li><a href="login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
             </security:authorize>
         </ul>
@@ -183,57 +315,61 @@
                 <div class="contact-form">
                     <%List<Posts> posts = (List<Posts>) request.getAttribute("lstOfPosts");%>
                     <% for (Posts post : posts) { %>
-                    <div class="row card">
-                        <div class="col-md-8 m-auto">
-                            <%List<Category> currentPostCategories = post.getCategories();%>
-                            <%for (Category cat : currentPostCategories) {%>
-                            <span style="color: red">#<%=cat.getCName()%></span>
+                    <section class="wrapper">
+                        <div class="container-fostrap">
+                            <div class="content">
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-10">
+                                            <div class="card">
+                                                <a class="img-card"
+                                                   href="http://www.fostrap.com/2016/03/bootstrap-3-carousel-fade-effect.html">
+                                                    <img src="https://blog.hdwallsource.com/wp-content/uploads/2016/02/tree-bark-26070-26755-hd-wallpapers.jpg"/>
+                                                </a>
+                                                <div class="card-content">
+                                                    <h4 class="card-title">
+                                                        <a href="http://www.fostrap.com/2016/03/bootstrap-3-carousel-fade-effect.html"><%=post.getTitle()%>
+                                                        </a>
+                                                    </h4>
+                                                    <p class="">
+                                                        <% if(post.getContent().length()>200) { %>
+                                                        <%=post.getContent().substring(0, 200)%>...
+                                                        <%} else {%>
+                                                        <%=post.getContent()%>
+                                                        <%}%>
 
-                            <%}%>
-                            <h3><%=post.getTitle()%>
-                            </h3>
-                            <p><%=post.getContent()%>
-                            </p>
-
-
-                            <span>Created At :<%=post.getCreatedAt()%></span> &nbsp; &nbsp; &nbsp; &nbsp;
-                            <span>Last Updated At : <%=post.getUpdatedAt()%></span><br>
-                            <span>Author name :&nbsp; &nbsp; <span
-                                    style="color: green"><%=post.getAuthor().getName()%></span></span>
+                                                    </p>
+                                                </div>
+                                                <div class="card-content">
+                                                    <%List<Category> currentPostCategories = post.getCategories();%>
+                                                    <%for (Category cat : currentPostCategories) {%>
+                                                    <span class="badge"
+                                                          style="background: dodgerblue">#<%=cat.getCName()%></span>
+                                                    <%}%>
+                                                </div>
+                                                <div class="card-content">
+                                                    <div class="chip">
+                                                        <img src="https://retohercules.com/images/img_avatar-png.png"
+                                                             alt="Author Name"> <%=post.getAuthor().getName()%>
+                                                    </div>
+                                                </div>
+                                                <div class="card-content">
+                                                <span class="badge" style="background: forestgreen">Created At :<%=post.getCreatedAt()%>s</span>&nbsp; &nbsp; &nbsp; &nbsp;
+                                                <span class="badge" style="background: yellowgreen">Last Updated At : <%=post.getUpdatedAt()%></span>
+                                                </div>
+                                                <div class="card-read-more">
+                                                    <a href="/read-post-<%=post.getPid()%>"
+                                                       class="btn btn-link btn-block">
+                                                        Read More
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <security:authorize access="isAuthenticated()">
-
-
-                                <%
-                                    String authorName = post.getAuthor().getName();
-                                    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-                                    String currentAuthor = "";
-                                    String authorities = "";
-                                    if (principal instanceof UserDetails) {
-                                        currentAuthor = ((UserDetails) principal).getUsername();
-                                        authorities = String.valueOf(((UserDetails) principal).getAuthorities());
-                                    } else {
-                                        currentAuthor = principal.toString();
-                                    }
-                                    if (authorName.equals(currentAuthor) || authorities.equals("[ROLE_ADMIN]")) {
-                                %>
-                                <%--                                <a href="/edit?id=<%=post.getId()%>">Edit</a>--%>
-                                <a href="../../update-post/<%=post.getPid()%>" class="btn btn-primary"><i
-                                        class="fa fa-edit"></i>
-                                    Update Post </a>
-
-                                <a href="../../delete-post/<%=post.getPid()%>" class="btn btn-primary"><i
-                                        class="fa fa-trash"></i>
-                                    Delete Post </a>
-                                <%
-                                    }
-                                %>
-                            </security:authorize>
-                        </div>
-                    </div>
-                    <br>
-                    <br>
+                    </section>
                     <%}%>
                 </div>
             </div>
@@ -265,7 +401,6 @@
             </nav>
         </div>
     </div>
-
 </div>
 </body>
 </html>

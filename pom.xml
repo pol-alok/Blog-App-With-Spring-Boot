@@ -53,19 +53,6 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
-<!--        for swagger library-->
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>2.9.2</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>2.9.2</version>
-            <scope>compile</scope>
-        </dependency>
 <!--for lambok-->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -78,7 +65,6 @@
             <artifactId>jackson-annotations</artifactId>
             <version>2.9.8</version>
         </dependency>
-
         <!--        for jsp pages-->
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>

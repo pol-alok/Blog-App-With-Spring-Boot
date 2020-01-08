@@ -1,4 +1,4 @@
-package com.alok.blogappwithboot.resources.services;
+package com.alok.blogappwithboot.controllers;
 
 import com.alok.blogappwithboot.resources.dao.AuthorService;
 import com.alok.blogappwithboot.resources.dao.CategoryService;
@@ -73,7 +73,14 @@ public class PostController {
         return "createPost";
     }
 
-    @RequestMapping("/login")
+    @GetMapping("/read-post-{id}")
+    public String getSinglePage( @PathVariable Integer id,Model model) {
+        Posts post = postService.get(id);
+        model.addAttribute("post",post);
+        return "fullPageView";
+    }
+
+    @GetMapping("/login")
     public String getLoginPage(Principal principal) {
         if (principal != null) {
             return "redirect:/posts";
@@ -86,7 +93,6 @@ public class PostController {
     public String createPost(@ModelAttribute("post") Posts post, Model model) {
 
         LOGGER.info("authentication in post request");
-//         post.getCategories().forEach((i) -> System.out.println(i.getCName()));
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String name = authentication.getName();
         LOGGER.info("finding author by name");
