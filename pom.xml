@@ -12,7 +12,6 @@
     <artifactId>blog-app-with-boot</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>blog-app-with-boot</name>
-    <packaging>war</packaging>
     <description>Demo project for Spring Boot</description>
 
     <properties>
