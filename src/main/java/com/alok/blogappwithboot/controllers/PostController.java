@@ -1,11 +1,12 @@
 package com.alok.blogappwithboot.controllers;
 
-import com.alok.blogappwithboot.resources.dao.AuthorService;
-import com.alok.blogappwithboot.resources.dao.CategoryService;
-import com.alok.blogappwithboot.resources.dao.PostService;
-import com.alok.blogappwithboot.resources.models.Author;
-import com.alok.blogappwithboot.resources.models.Category;
-import com.alok.blogappwithboot.resources.models.Posts;
+
+import com.alok.blogappwithboot.dao.Author;
+import com.alok.blogappwithboot.dao.Category;
+import com.alok.blogappwithboot.dao.Posts;
+import com.alok.blogappwithboot.services.AuthorService;
+import com.alok.blogappwithboot.services.CategoryService;
+import com.alok.blogappwithboot.services.PostService;
 import com.alok.blogappwithboot.validator.AuthorNameValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class PostController {
@@ -55,8 +57,80 @@ public class PostController {
     }
 
     @GetMapping("/")
-    public String redirectToHome() {
-        return "redirect:posts";
+    public String home(@RequestParam(required = false, name = "keyword") String keyword,
+                       @RequestParam(required = false, name = "author") String author,
+                       @RequestParam(defaultValue = "pid", required = false, name = "sortBy") String sortBy,
+                       @RequestParam(required = false, name = "category") String category,
+                       @RequestParam(defaultValue = "0", required = false, name = "page") Integer page,
+                       @RequestParam(defaultValue = "3", required = false, name = "pageSize") Integer pageSize,
+                       Model model) {
+        Pageable pageable;
+        if(sortBy.equals("updatedAt") || sortBy.equals("createdAt")) {
+            pageable= PageRequest.of(page, pageSize, Sort.by(sortBy).descending());
+        }
+        else  {
+             pageable = PageRequest.of(page, pageSize, Sort.by(sortBy).ascending());
+        }
+
+
+        List<Posts> listOfPost = null;
+        if (author != null) {
+
+            Author auth = authorService.findAuthorByName(author);
+            listOfPost = postService.getResultByAuthor(auth, pageable);
+        } else {
+            if (keyword != null) {
+                if (category != null) {
+
+                    Category cat;
+                    try {
+                        cat = categoryService.get(category);
+
+                    } catch (Exception e) {
+                        LOGGER.warn("getting exception in getting object by given list of category");
+                        return "error";
+                    }
+                    List<Posts> postByCat = cat.getPosts();
+                    listOfPost= postService.getResultBySearch(keyword, pageable).stream()
+                            .filter(postByCat::contains)
+                            .collect(Collectors.toList());
+                } else {
+                    listOfPost = postService.getResultBySearch(keyword, pageable);
+                }
+
+            } else {
+                if (category != null) {
+                    Category cat;
+                    try {
+                        cat = categoryService.get(category);
+
+                    } catch (Exception e) {
+                        LOGGER.warn("getting exception in getting object by given list of category");
+                        return "error";
+                    }
+                    List<Posts> postByCat = cat.getPosts();
+                    listOfPost= postService.listAll(pageable).stream()
+                            .filter(postByCat::contains)
+                            .collect(Collectors.toList());
+                } else {
+                    try {
+                        listOfPost = postService.listAll(pageable);
+                    } catch (Exception e) {
+                        LOGGER.warn("getting exception in getting list of posts");
+                        return "error";
+                    }
+                }
+
+            }
+
+        }
+
+        model.addAttribute("lstOfPosts", listOfPost);
+        System.out.println(listOfPost.size());
+        model.addAttribute("lastPage", listOfPost.size());
+        model.addAttribute("pageNo", page);
+        model.addAttribute("lstOfCategory", categoryService.listAll());
+        return "home";
     }
 
     @GetMapping("/create-post")
@@ -73,21 +147,7 @@ public class PostController {
         return "createPost";
     }
 
-    @GetMapping("/read-post-{id}")
-    public String getSinglePage( @PathVariable Integer id,Model model) {
-        Posts post = postService.get(id);
-        model.addAttribute("post",post);
-        return "fullPageView";
-    }
 
-    @GetMapping("/login")
-    public String getLoginPage(Principal principal) {
-        if (principal != null) {
-            return "redirect:/posts";
-        } else {
-            return "login";
-        }
-    }
 
     @PostMapping("/create-post")
     public String createPost(@ModelAttribute("post") Posts post, Model model) {
@@ -99,7 +159,7 @@ public class PostController {
         Author loggedInAuthor;
         try {
             loggedInAuthor = authorService.findAuthorByName(name);
-        }catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.warn("getting exception for getting author by name");
             return "error";
         }
@@ -109,14 +169,31 @@ public class PostController {
         LOGGER.info("saving post");
         try {
             postService.save(post);
-        }catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.warn("exception in saving post");
             return "error";
         }
 
-
+        System.out.println(post.getAuthor().getName());
         model.addAttribute("create", "Your Post created successfully!");
+        model.addAttribute("thisPost",post);
         return "postConformation";
+    }
+
+    @GetMapping("/post/{id}")
+    public String getSinglePage(@PathVariable Integer id, Model model) {
+        Posts post = postService.get(id);
+        model.addAttribute("post", post);
+        return "fullPageView";
+    }
+
+    @GetMapping("/login")
+    public String getLoginPage(Principal principal) {
+        if (principal != null) {
+            return "redirect:/posts";
+        } else {
+            return "login";
+        }
     }
 
     @GetMapping("/signUp")
@@ -140,7 +217,7 @@ public class PostController {
         LOGGER.info("saving author");
         try {
             authorService.save(author);
-        }catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.warn("exception in saving author");
             return "error";
         }
@@ -158,8 +235,8 @@ public class PostController {
         LOGGER.info("getting post by id");
         Posts currentPost;
         try {
-           currentPost = postService.get(id);
-        }catch (Exception e) {
+            currentPost = postService.get(id);
+        } catch (Exception e) {
             LOGGER.warn("getting exception to find post by id");
             return "error";
         }
@@ -170,8 +247,8 @@ public class PostController {
         if (postAuthorName.equals(name) || requestWrapper.isUserInRole("ROLE_ADMIN")) {
             Posts post;
             try {
-                 post= postService.get(id);
-            }catch (Exception e) {
+                post = postService.get(id);
+            } catch (Exception e) {
                 LOGGER.warn("getting exception to find post by id");
                 return "error";
             }
@@ -211,7 +288,7 @@ public class PostController {
         LOGGER.info("saving post");
         try {
             postService.save(post);
-        }catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.warn("exception in saving post");
             return "error";
         }
@@ -226,7 +303,7 @@ public class PostController {
 
         Posts currentPost;
         try {
-            currentPost= postService.get(id);
+            currentPost = postService.get(id);
 
         } catch (Exception e) {
             LOGGER.warn("getting exception in getting post by id");
@@ -249,7 +326,7 @@ public class PostController {
         LOGGER.info("deleting post");
         try {
             postService.delete(pid);
-        }catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.warn(" exception in deleting post");
             return "error";
         }
@@ -274,7 +351,7 @@ public class PostController {
 
         try {
             categoryService.save(category);
-        }catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.warn("exception in saving category");
             return "error";
         }
@@ -282,123 +359,4 @@ public class PostController {
         LOGGER.info("saved successfully");
         return "postConformation";
     }
-    @GetMapping("/posts")
-    public String searchingSortingFiltering(@RequestParam(required = false, name = "text") String text,
-                                            @RequestParam(defaultValue = "pid", required = false, name = "sortBy") String sortBy,
-                                            @RequestParam(required = false, name = "category") String category,
-                                            @RequestParam(defaultValue = "0", required = false, name = "page") Integer page,
-                                            @RequestParam(defaultValue = "5", required = false, name = "pageSize") Integer pageSize,
-                                            Model model) {
-
-        if (text != null) {
-
-            if (category != null) {
-
-//                getting the category object by given category;
-                LOGGER.info("getting the category object by given category");
-                Category cat;
-                try {
-                    cat= categoryService.get(category);
-                }catch (Exception e) {
-                    LOGGER.warn("getting exception in getting object by given category");
-                    return "error";
-                }
-
-
-//                getting the list related to that category
-                List<Posts> listByCategory;
-                try {
-                    listByCategory= cat.getPosts();
-                } catch (Exception e) {
-                    LOGGER.warn("getting exception in getting object by given list of category");
-                    return "error";
-                }
-
-
-//                creating the pageable object
-                Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sortBy).ascending());
-
-//                getting the list of post by search
-                List<Posts> listBySearch = postService.getResultBySearch(text, pageable);
-
-
-//                creating a list to store intersection of both
-                List<Posts> listByCategoryAndSearch = new ArrayList<>();
-
-                listBySearch.forEach((i) -> {
-                    if (listByCategory.contains(i)) {
-                        listByCategoryAndSearch.add(i);
-                    }
-                });
-
-                model.addAttribute("lstOfPosts", listByCategoryAndSearch);
-                model.addAttribute("lastPage", (listByCategoryAndSearch.size()) / pageSize);
-                model.addAttribute("pageNo", page);
-
-            } else {
-                Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sortBy).ascending());
-                List<Posts> listOfPosts = postService.getResultBySearch(text, pageable);
-                model.addAttribute("lstOfPosts", listOfPosts);
-                model.addAttribute("lastPage", (listOfPosts.size()) / pageSize);
-                model.addAttribute("pageNo", page);
-            }
-        } else {
-            if (category != null) {
-//                getting category object from name
-                Category cat;
-                try {
-                    cat= categoryService.get(category);
-                }catch (Exception e) {
-                    LOGGER.warn("getting exception in getting object by given list of category");
-                    return "error";
-                }
-
-//                getting the list of posts from category object
-                List<Posts> listByCategory = cat.getPosts();
-
-//                creating pageable object to make page pageable
-                Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sortBy).ascending());
-
-//                getting the list of posts from from post which is pageable
-                List<Posts> postsList;
-                try {
-                    postsList= postService.listAll(pageable);
-                }catch (Exception e) {
-                    LOGGER.warn("getting exception in getting list of posts");
-                    return "error";
-                }
-
-                List<Posts> finalList = new ArrayList<>();
-
-                postsList.forEach((i) -> {
-                    if (listByCategory.contains(i)) {
-                        finalList.add(i);
-                    }
-                });
-
-
-                model.addAttribute("lstOfPosts", finalList);
-                model.addAttribute("lastPage", (finalList.size()) / pageSize);
-                model.addAttribute("pageNo", page);
-
-            } else {
-                Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sortBy).ascending());
-                List<Posts> listOfPost;
-                try {
-                    listOfPost = postService.listAll(pageable);
-                } catch (Exception e) {
-                    LOGGER.warn("getting exception in getting list of posts");
-                    return "error";
-                }
-                model.addAttribute("lstOfPosts", listOfPost);
-                model.addAttribute("lastPage", (listOfPost.size()) / pageSize);
-                model.addAttribute("pageNo", page);
-            }
-
-        }
-        model.addAttribute("lstOfCategory", categoryService.listAll());
-        return "index";
-    }
 }
-
-

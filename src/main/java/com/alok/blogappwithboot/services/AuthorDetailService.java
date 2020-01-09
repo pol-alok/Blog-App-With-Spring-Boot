@@ -1,7 +1,7 @@
-package com.alok.blogappwithboot.resources.services;
+package com.alok.blogappwithboot.services;
 
-import com.alok.blogappwithboot.resources.models.Author;
-import com.alok.blogappwithboot.resources.repository.AuthorRepository;
+import com.alok.blogappwithboot.dao.Author;
+import com.alok.blogappwithboot.repository.AuthorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

@@ -1,7 +1,8 @@
-package com.alok.blogappwithboot.resources.repository;
+package com.alok.blogappwithboot.repository;
 
-import com.alok.blogappwithboot.resources.models.Category;
-import com.alok.blogappwithboot.resources.models.Posts;
+import com.alok.blogappwithboot.dao.Author;
+import com.alok.blogappwithboot.dao.Category;
+import com.alok.blogappwithboot.dao.Posts;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,6 +26,6 @@ public interface PostRepository extends JpaRepository<Posts, Integer>, PagingAnd
 
     Posts findByPid(Integer id);
 
-
+    Page<Posts> findAllByAuthor(Author name, Pageable pageable);
 
 }

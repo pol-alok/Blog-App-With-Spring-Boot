@@ -1,4 +1,4 @@
-package com.alok.blogappwithboot.resources.models;
+package com.alok.blogappwithboot.dao;
 
 import lombok.Getter;
 import lombok.Setter;

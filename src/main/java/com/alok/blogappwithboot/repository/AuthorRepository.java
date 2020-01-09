@@ -1,6 +1,7 @@
-package com.alok.blogappwithboot.resources.repository;
+package com.alok.blogappwithboot.repository;
 
-import com.alok.blogappwithboot.resources.models.Author;
+import com.alok.blogappwithboot.dao.Author;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AuthorRepository extends JpaRepository<Author, Integer> {

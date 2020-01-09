@@ -1,6 +1,6 @@
-package com.alok.blogappwithboot.resources.services;
+package com.alok.blogappwithboot.services;
 
-import com.alok.blogappwithboot.resources.models.Author;
+import com.alok.blogappwithboot.dao.Author;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

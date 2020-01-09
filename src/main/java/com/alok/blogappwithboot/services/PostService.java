@@ -1,10 +1,11 @@
-package com.alok.blogappwithboot.resources.dao;
+package com.alok.blogappwithboot.services;
 
 
 
-import com.alok.blogappwithboot.resources.models.Category;
-import com.alok.blogappwithboot.resources.models.Posts;
-import com.alok.blogappwithboot.resources.repository.PostRepository;
+import com.alok.blogappwithboot.dao.Author;
+import com.alok.blogappwithboot.dao.Category;
+import com.alok.blogappwithboot.dao.Posts;
+import com.alok.blogappwithboot.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.data.domain.Pageable;
@@ -57,5 +58,8 @@ public class PostService {
         return repo.findAllByContentContainsOrTitleContains(text,text,pageable);
     }
 
+    public List<Posts> getResultByAuthor(Author auth, Pageable page) {
+        return repo.findAllByAuthor(auth,page).getContent();
+    }
 
 }

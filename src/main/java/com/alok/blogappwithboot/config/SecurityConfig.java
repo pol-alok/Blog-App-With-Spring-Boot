@@ -55,13 +55,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/delete-post/**").authenticated()
                 .antMatchers("/update-post/**").authenticated()
                 .and()
+                .rememberMe()
+                .and()
                 .formLogin()
                 .loginPage("/login").permitAll()
                 .and()
                 .logout().invalidateHttpSession(true)
                 .clearAuthentication(true)
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutSuccessUrl("/posts").permitAll();
+                .logoutSuccessUrl("/").permitAll();
     }
 //        @Bean
 //    @Override

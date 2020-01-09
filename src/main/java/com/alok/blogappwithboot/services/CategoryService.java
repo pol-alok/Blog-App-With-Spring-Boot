@@ -1,7 +1,7 @@
-package com.alok.blogappwithboot.resources.dao;
+package com.alok.blogappwithboot.services;
 
-import com.alok.blogappwithboot.resources.models.Category;
-import com.alok.blogappwithboot.resources.repository.CategoryRepository;
+import com.alok.blogappwithboot.dao.Category;
+import com.alok.blogappwithboot.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
