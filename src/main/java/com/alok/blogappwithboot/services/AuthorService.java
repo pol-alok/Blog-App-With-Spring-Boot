@@ -14,21 +14,8 @@ public class AuthorService {
     @Autowired
     AuthorRepository repo;
 
-
     public void save(Author author) {
         repo.save(author);
-    }
-
-    public List<Author> listAll() {
-        return repo.findAll();
-    }
-
-    public void delete(Integer id) {
-        repo.deleteById(id);
-    }
-
-    public Author findAuthorById(Integer id) {
-        return repo.findByAid(id);
     }
 
     public Author findAuthorByName(String name) {

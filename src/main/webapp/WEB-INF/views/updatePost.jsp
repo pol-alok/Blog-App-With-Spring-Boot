@@ -24,6 +24,7 @@
                         <form:hidden path="pid"/>
                         <div class="form-group">
                             <label for="inputSubject">Post Title</label>
+                            <form:hidden path="author"/>
                             <form:input type="text" class="form-control" id="inputSubject" path="title" required="required"/>
                             <!--required remaining-->
                         </div>
